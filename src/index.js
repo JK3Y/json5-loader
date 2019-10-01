@@ -28,5 +28,9 @@ export default function loader(source) {
         .replace(/\u2029/g, '\\u2029')
     : source;
 
+  if(options.transpile) {
+    return JSON.stringify(value)
+  }
+  
   return `module.exports = ${value}`;
 }

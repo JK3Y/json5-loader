@@ -1,4 +1,9 @@
 {
   "type": "object",
+  "properties": {
+    "transpile": {
+      "type": "boolean"
+    }
+  },
   "additionalProperties": false
 }

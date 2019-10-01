@@ -11,7 +11,53 @@ describe('loader', () => {
   it('should export the loader', () => {
     expect(loader).toBeInstanceOf(Function);
   });
+  it('should export without export.modules', async () => {
+    const testId = './test.json5';
+    const stats = await webpack(testId, {
+      "loader": {
+        "options": {
+          "transpile": true
+        }
+      }
+    });
+    const { modules } = stats.toJson();
+    const module = modules.find((m) => m.id === testId);
 
+    expect(module.source).toMatchSnapshot('module');
+    expect(stats.compilation.warnings).toMatchSnapshot('warnings');
+    expect(stats.compilation.errors).toMatchSnapshot('errors');
+
+    const content = fs
+      .readFileSync(path.resolve(__dirname, './fixtures/test.json5'))
+      .toString();
+
+    // eslint-disable-next-line no-eval
+    expect(JSON.parse(module.source)).toEqual(JSON5.stringify(JSON5.parse(content)));
+  })
+  it('should export with export.modules', async () => {
+    const testId = './test.json5';
+    const stats = await webpack(testId, {
+      "loader": {
+        "options": {
+          "transpile": false
+        }
+      }
+    });
+    const { modules } = stats.toJson();
+    const module = modules.find((m) => m.id === testId);
+
+    expect(module.source).toMatchSnapshot('module');
+    expect(stats.compilation.warnings).toMatchSnapshot('warnings');
+    expect(stats.compilation.errors).toMatchSnapshot('errors');
+
+    const content = fs
+      .readFileSync(path.resolve(__dirname, './fixtures/test.json5'))
+      .toString();
+
+    // eslint-disable-next-line no-eval
+    expect(eval(module.source)).toEqual(JSON5.parse(content));
+  })
+  
   it('should handle valid JSON5', async () => {
     const testId = './test.json5';
     const stats = await webpack(testId);
